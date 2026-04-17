@@ -1,0 +1,24 @@
+# Single tutorial container with uv + deps.
+# ZenML runs in "local" mode: a SQLite metadata store and a local artifact
+# store, both persisted inside the bind-mounted repo under `.zen/`.
+#
+# The dashboard is launched separately on the host with `uv run zenml login --local`
+# (see README) — running it inside this container is fragile because ZenML's
+# local mode spawns its own subprocess/container.
+#
+# Usage:
+#   make build   # build the image
+#   make up      # start the dev container
+#   make init    # `zenml init` inside the container (one-time)
+#   make shell   # exec into it
+#   make run1    # run module 1
+#   make down    # stop
+
+services:
+  tutorial:
+    build: .
+    container_name: zenml-tutorial
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: sleep infinity

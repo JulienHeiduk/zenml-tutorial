@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.zen/
+.ipynb_checkpoints/
+uv.lock
+.claude/

@@ -66,7 +66,10 @@ def load_data() -> tuple[
     Annotated[pd.Series, "y_test"],
 ]:
     data = load_iris(as_frame=True)
-    return train_test_split(data.data, data.target, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        data.data, data.target, test_size=0.2, random_state=42
+    )
+    return X_train, X_test, y_train, y_test
 
 
 @step
@@ -90,7 +93,7 @@ def evaluate(
 
 
 @pipeline
-def iris_training_pipeline(n_estimators: int = 50):
+def iris_training_pipeline_deployment(n_estimators: int = 50):
     X_train, X_test, y_train, y_test = load_data()
     model = train_model(X_train, y_train, n_estimators=n_estimators)
     evaluate(model, X_test, y_test)
@@ -106,6 +109,6 @@ if __name__ == "__main__":
 
     # `.with_options(config_path=...)` loads runtime settings from YAML.
     # Keep code clean; keep infra knobs in config.
-    iris_training_pipeline.with_options(
+    iris_training_pipeline_deployment.with_options(
         config_path="modules/03_stacks_and_deployment/config.yaml"
     )(n_estimators=100)

@@ -52,7 +52,10 @@ def load_data() -> tuple[
     Annotated[pd.Series, "y_test"],
 ]:
     data = load_iris(as_frame=True)
-    return train_test_split(data.data, data.target, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(
+        data.data, data.target, test_size=0.2, random_state=42
+    )
+    return X_train, X_test, y_train, y_test
 
 
 # CPU-heavy: give it 4 cores and more memory.
@@ -97,7 +100,7 @@ def evaluate(
 
 
 @pipeline
-def iris_training_pipeline(n_estimators: int = 50):
+def iris_training_pipeline_caching(n_estimators: int = 50):
     X_train, X_test, y_train, y_test = load_data()
     model = train_model(X_train, y_train, n_estimators=n_estimators)
     evaluate(model, X_test, y_test)
@@ -105,7 +108,7 @@ def iris_training_pipeline(n_estimators: int = 50):
 
 if __name__ == "__main__":
     # First call: everything runs.
-    iris_training_pipeline()
+    iris_training_pipeline_caching()
 
     # Try changing n_estimators and re-running: only `train_model` and
     # `evaluate` re-execute. `load_data` stays cached.

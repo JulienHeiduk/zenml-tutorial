@@ -35,9 +35,9 @@ run2: ## Run module 2 inside the tutorial container
 run3: ## Run module 3 inside the tutorial container
 	docker compose exec tutorial python modules/03_stacks_and_deployment/pipeline.py
 
-dashboard: ## Launch the ZenML dashboard on the HOST (needs uv installed locally)
-	uv run zenml login --local
+dashboard: ## Launch the ZenML dashboard inside the tutorial container (http://localhost:8237)
+	docker compose exec tutorial zenml login --local --ip-address 0.0.0.0
 
-clean: ## Stop services and delete .zen/ metadata
+clean: ## Stop services and delete .zen/ + .zenconfig/ metadata
 	docker compose down
-	rm -rf .zen
+	rm -rf .zen .zenconfig

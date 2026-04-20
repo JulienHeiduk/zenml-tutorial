@@ -2,6 +2,7 @@
 __pycache__/
 *.pyc
 .zen/
+.zenconfig/
 .ipynb_checkpoints/
 uv.lock
 .claude/

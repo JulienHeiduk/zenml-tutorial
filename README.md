@@ -47,33 +47,33 @@ inspect the result in the dashboard, then move on.
 ## How it's wired
 
 We use **ZenML in local mode** — a SQLite metadata store + local artifact
-store, both kept in `.zen/` inside the repo. No server, no auth, no cloud.
+store. Pipeline artifacts live in `.zen/`; the ZenML client config lives in
+`.zenconfig/`. Both sit inside the repo so container and host see the same
+state. No server, no auth, no cloud.
 
-- **Pipelines run inside a Docker dev container** (for a clean, reproducible
-  Python environment — no uv/Python install required on the host).
-- **The dashboard runs on the host** via `uv run zenml login --local`
-  (running `zenml login --local` inside Docker is flaky because it spawns its
-  own subprocess). Both read the same `.zen/` via the bind mount, so the
-  dashboard sees everything the container writes.
+- **Pipelines run inside a Docker dev container** (clean, reproducible Python
+  environment — no uv/Python install required on the host).
+- **The dashboard also runs inside the container**, bound to `0.0.0.0:8237`
+  and exposed to the host. `ZENML_CONFIG_PATH=/workspace/.zenconfig` keeps
+  the client config inside the repo so everything stays consistent.
 
 If you'd rather skip Docker entirely, the host-only path (Option B below)
 works end-to-end on its own.
 
 ## Setup
 
-### Option A — Docker container + host dashboard (recommended)
+### Option A — Docker only (recommended)
 
-Requires Docker + `uv` (for the dashboard only).
+Requires Docker. No host-side Python or `uv` needed.
 
 ```bash
 make build        # build the tutorial image
 make up           # start the dev container
 make init         # one-time: `zenml init` inside the container
 
-# in another terminal, on the host:
-make dashboard    # opens http://localhost:8237
+make dashboard    # opens http://localhost:8237 (runs inside container)
 
-# back in the first terminal — run the modules:
+# in another terminal — run the modules:
 make run1
 make run2         # run twice to see caching
 make run3
@@ -117,9 +117,10 @@ After each run, refresh the dashboard to inspect the DAG, artifacts, and logs.
 
 - **Dashboard login prompt?** In local mode there's none — no username, no
   password. If you see an auth screen, you're pointed at a server, not the
-  local dashboard. Run `uv run zenml logout` then `uv run zenml login --local`.
-- **Port 8237 already in use?** `uv run zenml logout --local` kills a prior
-  local dashboard.
+  local dashboard. Inside the container: `zenml logout` then re-run
+  `make dashboard`. On the host (Option B): swap `zenml` for `uv run zenml`.
+- **Port 8237 already in use?** Stop the prior dashboard with
+  `docker compose exec tutorial zenml logout --local` (or `uv run zenml logout --local` on the host).
 - **`service "tutorial" is not running`?** Run `make up` first.
 - **Stuck inside the container?** `make shell`, then `zenml status`,
   `zenml stack describe`, `zenml --help`. The [docs](https://docs.zenml.io/)

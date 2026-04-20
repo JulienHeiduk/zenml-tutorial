@@ -1,0 +1,15 @@
+# Example runtime configuration for module 3.
+# Anything that changes between environments (prod vs. dev, CPU vs. GPU,
+# different datasets) belongs here — not hard-coded in Python.
+
+# Pipeline-level settings
+enable_cache: true
+
+# Per-step overrides: add resource requests, env vars, retries, etc.
+steps:
+  train_model:
+    enable_cache: true
+    parameters:
+      n_estimators: 100
+  evaluate:
+    enable_cache: true
